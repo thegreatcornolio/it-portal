@@ -276,7 +276,7 @@ var MSAL_CONFIG = {
   auth: {
     clientId: '4b515ddf-72b9-43eb-b36b-82fc69296a7c',
     authority: 'https://login.microsoftonline.com/77cde95f-930f-495e-89c6-4d2c30f6df21',
-    redirectUri: 'https://it.trilogybpo.com'
+    redirectUri: window.location.origin + '/'
   },
   cache: { cacheLocation: 'sessionStorage' }
 };
@@ -345,8 +345,14 @@ async function init(){
 }
 
 async function signIn(){
-  try { await msalInstance.loginRedirect({ scopes: GRAPH_SCOPES }); }
-  catch(e){ gi('login-err').style.display='block'; gi('login-err').textContent=e.message; }
+  console.log('signIn clicked');
+  try {
+    await msalInstance.loginRedirect({ scopes: GRAPH_SCOPES });
+  } catch(e){
+    console.error('loginRedirect error:', e);
+    gi('login-err').style.display='block';
+    gi('login-err').textContent=e.message;
+  }
 }
 function signOut(){ msalInstance.logoutRedirect(); }
 
