@@ -94,11 +94,6 @@ body{overflow-x:hidden;font-family:'Wix Madefor Text',sans-serif;background:var(
 .sp-pending{background:var(--amber-light);color:#856404}
 .sp-progress{background:var(--blue-light);color:#1e40af}
 .sp-done{background:var(--green-light);color:var(--green-dark)}
-.np-stage{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;letter-spacing:.03em;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.np-urgent{background:var(--red-light);color:var(--red)}
-.np-soon{background:var(--amber-light);color:#856404}
-.np-active{background:var(--blue-light);color:#1e40af}
-.np-stage-note{font-size:11px;color:var(--text2);background:var(--offwhite);border-radius:6px;padding:6px 10px;margin-bottom:10px}
 .it-actions{margin-top:14px;display:flex;flex-direction:column;gap:8px}
 .it-input{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:7px;font-size:13px;font-family:inherit;outline:none}
 .it-input:focus{border-color:var(--navy)}
@@ -228,7 +223,6 @@ body{overflow-x:hidden;font-family:'Wix Madefor Text',sans-serif;background:var(
     <div class="tabs">
       <div class="tab active" data-tab="hardware" onclick="switchTab('hardware',this)">🖥️ Hardware Prep<span class="tab-count" id="cnt-hardware">0</span></div>
       <div class="tab" data-tab="accounts" onclick="switchTab('accounts',this)">📧 Account Creation<span class="tab-count" id="cnt-accounts">0</span></div>
-      <div class="tab" data-tab="needs" onclick="switchTab('needs',this)">📨 Needs Account<span class="tab-count" id="cnt-needs">0</span></div>
       <div class="tab" data-tab="done" onclick="switchTab('done',this)">✓ Completed<span class="tab-count" id="cnt-done">0</span></div>
       <div class="tab tab-admin-only" data-tab="access" onclick="switchTab('access',this)">⚙️ Access</div>
     </div>
@@ -245,15 +239,6 @@ body{overflow-x:hidden;font-family:'Wix Madefor Text',sans-serif;background:var(
         <button class="btn btn-navy" id="sync-btn" onclick="syncM365()">🔄 Sync from M365</button>
       </div>
       <div class="queue-grid" id="grid-accounts"></div>
-    </div>
-
-    <!-- NEEDS ACCOUNT (existing employees with no work email) -->
-    <div class="tab-panel" id="panel-needs">
-      <div class="sync-bar">
-        <div class="sync-text">Existing employees who have signed but don't yet have a Trilogy email. Sync from M365 or enter the email to write it to their record.</div>
-        <button class="btn btn-navy" id="sync-needs-btn" onclick="syncM365()">🔄 Sync from M365</button>
-      </div>
-      <div class="queue-grid" id="grid-needs"></div>
     </div>
 
     <!-- DONE -->
@@ -303,15 +288,13 @@ var FLOWS = {
   MANAGE_IT_ACCESS: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1f04c676edb94d6faec6058c6d5385df/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LUdXxDePhEeVIlvThi6ngJdp5_SzCVuOUx_hmhIIltQ',
   GET_IT_QUEUE:     'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2f82c8b6f6dd45b6bd836dc11064b08f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c_oaORVQe-jxKW4EKFfRf3nsZMQc0txx3nXBFGZGrfM',
   UPDATE_IT_TASK:   'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/27798c90d8424e43bbbe1c5540c5607b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FyVvvjBtVJFzcz2AwxaqByQFkx7KHXRmldNQ3qwer8g',
-  SYNC_M365_EMAIL:  'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/75902f227946435bb98bfb16ba1970aa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HS8F-_XuIAc55VmQyKBv5S2xZ1Gey84kCpdTtucqvrc',
-  GET_NEEDS_ACCOUNT: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/393cc9f6f2384eb4bc84b82f480d3cd9/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=tm2Bco5-78DTXHpki3yGspaqT5bm26fwL7JY0g5oF1M',
-  SET_WORK_EMAIL:    'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8a0c724763cc48469db93072cf172df2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VqodDeuqNzRAG38AQXvH0fgznkmaRyd4kxODJq2lQuI'
+  SYNC_M365_EMAIL:  'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/75902f227946435bb98bfb16ba1970aa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HS8F-_XuIAc55VmQyKBv5S2xZ1Gey84kCpdTtucqvrc'
 };
 
 var ADMIN_EMAIL = 'craigs@trilogybpo.com';
 
 // ── STATE ──
-var S = { account:null, email:'', isAdmin:false, queue:[], access:[], needsAccount:[], activeTab:'hardware' };
+var S = { account:null, email:'', isAdmin:false, queue:[], access:[], activeTab:'hardware' };
 
 var msalInstance = new msal.PublicClientApplication(MSAL_CONFIG);
 
@@ -416,7 +399,6 @@ function enterPortal(){
   if(S.isAdmin){ document.querySelectorAll('.tab-admin-only').forEach(function(el){el.style.display='block';}); }
   showScreen('portal');
   loadQueue();
-  loadNeedsAccount();
   if(S.isAdmin) loadAccess();
 }
 
@@ -451,64 +433,6 @@ function renderQueue(){
 }
 
 function emptyMsg(ico,title,sub){ return '<div class="empty" style="grid-column:1/-1"><div class="empty-ico">'+ico+'</div><div class="empty-title">'+title+'</div><div>'+sub+'</div></div>'; }
-
-// ── NEEDS ACCOUNT (existing employees, no work email) ──
-async function loadNeedsAccount(){
-  try {
-    var d = await flow(FLOWS.GET_NEEDS_ACCOUNT, {});
-    S.needsAccount = rowsFrom(d);
-  } catch(e){
-    S.needsAccount = [];
-    gi('grid-needs').innerHTML = emptyMsg('⚠️','Unavailable', e.message);
-    gi('cnt-needs').textContent = 0;
-    return;
-  }
-  renderNeeds();
-}
-
-function renderNeeds(){
-  gi('cnt-needs').textContent = S.needsAccount.length;
-  gi('grid-needs').innerHTML = S.needsAccount.length
-    ? S.needsAccount.map(needsCard).join('')
-    : emptyMsg('📨','Everyone has an email','All signed employees have a Trilogy work email.');
-}
-
-function needsCard(e){
-  var eid = e.EmployeeID;
-  var st = e.Status || '—';
-  // Urgency colouring by pipeline stage
-  var stageCls = 'sp-pending';
-  var stageNote = '';
-  if(st==='Offer Signed'){ stageCls='np-urgent'; stageNote='Procurement needed — start may be soon'; }
-  else if(st==='Contract Sent'){ stageCls='np-soon'; stageNote='Awaiting contract signature'; }
-  else if(st==='Contract Signed'){ stageCls='np-soon'; stageNote='Start date confirmed — create account'; }
-  else if(st==='Onboarded'||st==='To be onboarded'){ stageCls='np-active'; stageNote='Onboarding in progress'; }
-  else if(st==='Active'){ stageCls='np-active'; stageNote='Active without an email — needs attention'; }
-  return '<div class="it-card">'+
-    '<div class="it-card-head"><div class="it-avatar">'+initials(e.FirstName,e.LastName)+'</div>'+
-      '<div style="flex:1"><div class="it-name">'+(e.FirstName||'')+' '+(e.LastName||'')+'</div><div class="it-meta">'+(e.JobTitle||'—')+' · '+(e.Campaign||'—')+'</div></div>'+
-      '<span class="np-stage '+stageCls+'">'+st+'</span></div>'+
-    '<div class="it-card-body">'+
-      (stageNote?'<div class="np-stage-note">'+stageNote+'</div>':'')+
-      '<div class="it-row"><span class="it-row-k">Start date</span><span class="it-row-v">'+fmtDate(e.StartDate)+'</span></div>'+
-      '<div class="it-row"><span class="it-row-k">Personal email</span><span class="it-row-v" style="font-size:12px">'+(e.PersonalEmail||'—')+'</span></div>'+
-      '<div class="it-actions">'+
-        '<input class="it-input" id="wemail-'+eid+'" placeholder="new.work@trilogybpo.com">'+
-        '<button class="btn btn-green btn-block" onclick="saveWorkEmail(\''+eid+'\')">✓ Save work email</button>'+
-      '</div>'+
-    '</div></div>';
-}
-
-async function saveWorkEmail(eid){
-  var el = gi('wemail-'+eid);
-  var email = el ? el.value.trim() : '';
-  if(!email){ toast('Enter the work email first'); return; }
-  try {
-    await flow(FLOWS.SET_WORK_EMAIL, { employee_id:eid, work_email:email });
-    toast('Work email saved to record');
-    await loadNeedsAccount();
-  } catch(e){ toast('Error: '+e.message); }
-}
 
 function statusPill(s){
   if(s==='Ready'||s==='Created') return '<span class="status-pill sp-done">✓ '+s+'</span>';
@@ -581,16 +505,14 @@ async function createAccount(id){
 }
 
 async function syncM365(){
-  var btns=[gi('sync-btn'),gi('sync-needs-btn')].filter(Boolean);
-  btns.forEach(function(b){b.disabled=true;b.textContent='Syncing…';});
+  var btn=gi('sync-btn'); btn.disabled=true; btn.textContent='Syncing…';
   try {
     var d = await flow(FLOWS.SYNC_M365_EMAIL, {});
     var matched = (d && (d.matched!==undefined?d.matched:rowsFrom(d).length)) || 0;
     toast('Synced — '+matched+' email(s) matched');
     await loadQueue();
-    await loadNeedsAccount();
   } catch(e){ toast('Sync error: '+e.message); }
-  btns.forEach(function(b){b.disabled=false;b.textContent='🔄 Sync from M365';});
+  btn.disabled=false; btn.textContent='🔄 Sync from M365';
 }
 
 // ── ACCESS (admin) ──

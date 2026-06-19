@@ -328,7 +328,6 @@ function showScreen(id){
   target.style.display = (id==='portal') ? 'block' : 'flex';
   gi('loading-overlay').classList.add('hidden');
   gi('loading-overlay').style.display='none';
-  console.log('showScreen ->', id, 'display=', target.style.display);
 }
 function toast(msg){var t=gi('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
 function initials(f,l){return((f||'')[0]||'').toUpperCase()+((l||'')[0]||'').toUpperCase();}
@@ -353,23 +352,17 @@ async function flow(url, body){
 
 // ── AUTH ──
 async function init(){
-  console.log('init start, url=', window.location.href);
   await msalInstance.initialize();
-  console.log('msal initialized');
   try {
     var resp = await msalInstance.handleRedirectPromise();
-    console.log('handleRedirectPromise resp=', resp);
     var accounts = msalInstance.getAllAccounts();
-    console.log('accounts found=', accounts.length, accounts);
     var account = resp ? resp.account : (accounts[0] || null);
-    if(!account){ console.log('no account -> login screen'); showScreen('login-screen'); return; }
+    if(!account){ showScreen('login-screen'); return; }
     S.account = account;
     S.email = (account.username||'').toLowerCase();
-    console.log('logged in as', S.email);
     msalInstance.setActiveAccount(account);
     await checkAccess();
   } catch(e){
-    console.error('init error:', e);
     showScreen('login-screen');
     gi('login-err').style.display='block';
     gi('login-err').textContent='Sign-in error: '+e.message;
@@ -377,11 +370,9 @@ async function init(){
 }
 
 async function signIn(){
-  console.log('signIn clicked');
   try {
     await msalInstance.loginRedirect({ scopes: GRAPH_SCOPES });
   } catch(e){
-    console.error('loginRedirect error:', e);
     gi('login-err').style.display='block';
     gi('login-err').textContent=e.message;
   }
@@ -390,22 +381,18 @@ function signOut(){ msalInstance.logoutRedirect(); }
 
 async function checkAccess(){
   S.isAdmin = (S.email === ADMIN_EMAIL);
-  console.log('checkAccess, isAdmin=', S.isAdmin);
   try {
     var d = await flow(FLOWS.CHECK_IT_ACCESS, { email: S.email });
     var rows = rowsFrom(d);
     var allowed = S.isAdmin || rows.some(function(r){ return (r.Email||'').toLowerCase() === S.email; });
-    console.log('access flow ok, allowed=', allowed);
     if(!allowed){ showScreen('denied-screen'); return; }
   } catch(e){
-    console.log('access flow failed:', e.message, '— admin fallback:', S.isAdmin);
     if(!S.isAdmin){
       showScreen('denied-screen');
       gi('denied-sub').textContent = 'Access check unavailable. Contact an administrator.';
       return;
     }
   }
-  console.log('entering portal');
   enterPortal();
 }
 
